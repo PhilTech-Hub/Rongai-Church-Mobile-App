@@ -1,43 +1,73 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-import { Platform } from 'react-native';
+// app/_layout.tsx or app/_layout.js (based on your project structure)
 
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
+import React from 'react';
+import { Tabs } from 'expo-router';
+import { Platform, Image, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { Colors } from '@/constants/Colors';
+import { HapticTab } from '@/components/HapticTab';
+import TabBarBackground from '@/components/ui/TabBarBackground';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
   return (
     <Tabs
-      screenOptions={{
+      screenOptions={({ route }) => ({
+        headerShown: true, // Show header globally
+        headerTitle: () => (
+          <Text style={{ fontSize: 20, fontWeight: 'bold' }}>
+            Rongai Church
+          </Text>
+        ),
+        headerRight: () => (
+          <Image
+            source={{ uri: 'https://i.pravatar.cc/150?img=3' }} // Replace with actual profile image
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 18, // 50% border radius
+              marginRight: 16,
+            }}
+          />
+        ),
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
         tabBarStyle: Platform.select({
           ios: {
-            // Use a transparent background on iOS to show the blur effect
             position: 'absolute',
           },
           default: {},
         }),
-      }}>
+      })}
+    >
       <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home" size={size ?? 28} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="social"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Social',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="people" size={size ?? 28} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="event"
+        options={{
+          title: 'Events',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="calendar" size={size ?? 28} color={color} />
+          ),
         }}
       />
     </Tabs>
