@@ -1,6 +1,7 @@
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 
 const individualChats = [
     { id: '1', name: 'John Doe' },
@@ -29,6 +30,7 @@ export default function ChatsScreen() {
         </TouchableOpacity>
     );
 
+
     return (
         <View style={styles.container}>
             <Text style={styles.sectionTitle}>Individual Chats</Text>
@@ -46,6 +48,13 @@ export default function ChatsScreen() {
                 renderItem={renderItem}
                 style={styles.list}
             />
+            {/* Floating Action Button */}
+            <TouchableOpacity
+                style={styles.fab}
+                onPress={() => router.push('/chats/new')}
+            >
+                <Ionicons name="add" size={28} color="#fff" />
+            </TouchableOpacity>
         </View>
     );
 }
@@ -74,4 +83,13 @@ const styles = StyleSheet.create({
     chatName: {
         fontSize: 16,
     },
+    fab: {
+    position: 'absolute',
+    right: 20,
+    bottom: 20,
+    backgroundColor: '#2196F3',
+    padding: 16,
+    borderRadius: 50,
+    elevation: 5,
+  },
 });

@@ -1,3 +1,4 @@
+// SocialScreen.tsx or SocialScreen.jsx
 import React, { useRef, useState, useCallback } from 'react';
 import {
   View,
@@ -14,10 +15,8 @@ import {
 } from 'react-native';
 import { Video, ResizeMode } from 'expo-av';
 import { useFocusEffect } from '@react-navigation/native';
-import { Ionicons, MaterialIcons, FontAwesome } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons, FontAwesome5, Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-
-
 
 const { height } = Dimensions.get('window');
 
@@ -35,6 +34,17 @@ const reelsData = [
 ];
 
 export default function SocialScreen() {
+  const router = useRouter();
+
+  // ✅ Add this block to fix badge counts
+  const counts = {
+    chats: 3,
+    meetings: 1,
+    whatsapp: 5,
+    alerts: 2,
+    calls: 0,
+  };
+
   const videoRefs = useRef<Video[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [liked, setLiked] = useState<boolean[]>(reelsData.map(() => false));
@@ -47,7 +57,6 @@ export default function SocialScreen() {
       const newIndex = viewableItems[0].index;
       setCurrentIndex(newIndex);
 
-      // Auto play current video, pause others
       videoRefs.current.forEach((video, index) => {
         if (video) {
           if (index === newIndex) {
@@ -75,8 +84,6 @@ export default function SocialScreen() {
     );
   };
 
-  const router = useRouter();
-
   const openShareOptions = () => setShareModalVisible(true);
   const openComments = () => setCommentModalVisible(true);
   const saveVideo = () => {
@@ -101,7 +108,6 @@ export default function SocialScreen() {
     setIsPlaying(updatedPlayStates);
   };
 
-
   const handleSeek = async (index: number, direction: 'forward' | 'backward') => {
     const video = videoRefs.current[index];
     if (!video) return;
@@ -117,11 +123,9 @@ export default function SocialScreen() {
     await video.setPositionAsync(newPosition);
   };
 
-
   useFocusEffect(
     useCallback(() => {
       return () => {
-        // On blur: pause all videos
         videoRefs.current.forEach(video => {
           if (video) video.pauseAsync();
         });
@@ -138,7 +142,7 @@ export default function SocialScreen() {
           }}
           source={{ uri: item.uri }}
           style={styles.video}
-          resizeMode={ResizeMode.COVER} // ✅ Correct usage
+          resizeMode={ResizeMode.COVER}
           shouldPlay={index === currentIndex}
           isLooping
           useNativeControls={false}
@@ -146,7 +150,6 @@ export default function SocialScreen() {
           onError={(e) => console.error('Video error:', e)}
         />
 
-        {/* Rewind & Forward Buttons */}
         <View style={styles.controls}>
           <TouchableOpacity
             onPress={() => handleSeek(index, 'backward')}
@@ -166,28 +169,35 @@ export default function SocialScreen() {
     </TouchableWithoutFeedback>
   );
 
-  
-
   return (
     <View style={styles.container}>
-      {/* Top Navbar */}
+      {/* ✅ Top Navbar */}
       <View style={styles.navbar}>
-        <TouchableOpacity onPress={() => router.push('/chats')}>
-          <Ionicons name="chatbubbles-outline" size={24} color="#fff" />
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => console.log('Meetings')}>
-          <MaterialIcons name="video-call" size={24} color="#fff" />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={openWhatsAppCommunity}>
-          <FontAwesome name="whatsapp" size={24} color="#17db5f" />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => console.log('Notifications')}>
-          <Ionicons name="notifications-outline" size={24} color="#fff" />
-        </TouchableOpacity>
+        {/* Repeated blocks for each nav item */}
+        {[
+          { label: 'Chats', icon: <Ionicons name="chatbubbles-outline" size={24} color="#fff" />, count: counts.chats, onPress: () => router.push('/chats') },
+          { label: 'Meetings', icon: <MaterialIcons name="video-call" size={24} color="#fff" />, count: counts.meetings, onPress: () => console.log('Meetings') },
+          { label: 'WhatsApp', icon: <FontAwesome5 name="whatsapp" size={24} color="#17db5f" />, count: counts.whatsapp, onPress: openWhatsAppCommunity },
+          { label: 'Notifications', icon: <Ionicons name="notifications-outline" size={24} color="#fff" />, count: counts.alerts, onPress: () => console.log('Notifications') },
+          { label: 'Calls', icon: <Feather name="phone-call" size={24} color="#0cee5f" />, count: counts.calls, onPress: () => console.log('Calls') },
+        ].map((item, idx) => (
+          <TouchableOpacity key={idx} onPress={item.onPress}>
+            <View style={styles.navItem}>
+              <View style={styles.iconContainer}>
+                {item.icon}
+                {item.count > 0 && (
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>{item.count}</Text>
+                  </View>
+                )}
+              </View>
+              <Text style={styles.navLabel}>{item.label}</Text>
+            </View>
+          </TouchableOpacity>
+        ))}
       </View>
 
-      {/* Reels List */}
+      {/* Reels */}
       <FlatList
         data={reelsData}
         renderItem={renderItem}
@@ -199,38 +209,31 @@ export default function SocialScreen() {
         viewabilityConfig={viewConfigRef.current}
       />
 
-      {/* Right Action Icons */}
+      {/* Right-side action icons */}
       <View style={styles.actions}>
         <Image
           source={{ uri: reelsData[currentIndex].profilePic }}
           style={styles.profilePic}
         />
-
-        <TouchableOpacity
-          style={styles.actionButton}
-          onPress={() => toggleLike(currentIndex)}
-        >
+        <TouchableOpacity style={styles.actionButton} onPress={() => toggleLike(currentIndex)}>
           <Ionicons
             name={liked[currentIndex] ? 'heart' : 'heart-outline'}
             size={30}
             color={liked[currentIndex] ? 'red' : 'red'}
           />
         </TouchableOpacity>
-
         <TouchableOpacity style={styles.actionButton} onPress={openComments}>
           <Ionicons name="chatbubble-outline" size={30} color="black" />
         </TouchableOpacity>
-
         <TouchableOpacity style={styles.actionButton} onPress={openShareOptions}>
           <Ionicons name="share-social-outline" size={30} color="black" />
         </TouchableOpacity>
-
         <TouchableOpacity style={styles.actionButton} onPress={saveVideo}>
           <Ionicons name="bookmark-outline" size={30} color="blue" />
         </TouchableOpacity>
       </View>
 
-      {/* Comment Modal */}
+      {/* Modals */}
       <Modal visible={commentModalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
@@ -244,7 +247,6 @@ export default function SocialScreen() {
         </View>
       </Modal>
 
-      {/* Share Modal */}
       <Modal visible={shareModalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
@@ -262,6 +264,10 @@ export default function SocialScreen() {
   );
 }
 
+// ✅ styles remain unchanged from your last version
+// You can keep the styles object from your existing code exactly as it is
+
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -271,9 +277,39 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     paddingVertical: 10,
-    backgroundColor: 'rgba(13, 69, 221, 0.5)',
+    backgroundColor: 'rgba(23, 121, 23, 0.93)',
     borderBottomWidth: 1,
-    borderBottomColor: '#222',
+    borderBottomColor: 'rgba(158, 172, 158, 0.42)',
+  },
+  navItem: {
+    alignItems: 'center',
+  },
+
+  navLabel: {
+    marginTop: 2,
+    fontSize: 10,
+    color: '#fff',
+  },
+  iconContainer: {
+    position: 'relative',
+  },
+  badge: {
+    position: 'absolute',
+    top: -4,
+    right: -6,
+    backgroundColor: 'rgba(172, 52, 22, 0.76)',
+    borderRadius: 10,
+    paddingHorizontal: 4,
+    minWidth: 16,
+    height: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 99,
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: 'bold',
   },
   videoContainer: {
     height,
@@ -292,9 +328,9 @@ const styles = StyleSheet.create({
     right: 20,
     alignItems: 'center',
     zIndex: 1,
-    backgroundColor: 'rgba(83, 103, 122, 0.4)',
-    padding: '0.5%',
-    borderRadius: '10px'
+    backgroundColor: 'rgba(101, 130, 160, 0.54)',
+    padding: '0.6%',
+    borderRadius: '15px'
   },
   actionButton: {
     marginVertical: 10,

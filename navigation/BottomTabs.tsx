@@ -1,13 +1,13 @@
 // navigation/BottomTabs.tsx
 
-import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { RouteProp } from '@react-navigation/native';
+import React from 'react';
 
+import EventsScreen from '../app/(tabs)/event'; // 👈 Ensure correct file name & casing
 import HomeScreen from '../app/(tabs)/index';
-import EventsScreen from '../app/(tabs)/Event'; // 👈 Ensure correct file name & casing
-import SocialScreen from '../app/(tabs)/Social';
+import SocialScreen from '../app/(tabs)/social';
 
 export type BottomTabParamList = {
   Home: undefined;
