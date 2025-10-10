@@ -48,7 +48,7 @@ export default function HomeScreen() {
       <View>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
           <Text style={{ fontSize: 18, fontWeight: '600' }}>Upcoming Events</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Events')}>
+          <TouchableOpacity onPress={() => navigation.navigate('Event')}>
             <Text style={{ color: '#2563eb' }}>See all</Text>
           </TouchableOpacity>
         </View>

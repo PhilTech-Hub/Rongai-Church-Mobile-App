@@ -1,19 +1,23 @@
 import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
     Animated,
+    Dimensions,
     ImageBackground,
     PanResponder,
     StyleSheet,
     Text,
-    View,
+    TouchableOpacity
 } from "react-native";
+
+const { height } = Dimensions.get("window");
 
 export default function LandingScreen() {
   const router = useRouter();
   const [displayedText, setDisplayedText] = useState("");
   const fullText = "Welcome to Rongai Church Connect 🙏";
-  const [fadeAnim] = useState(new Animated.Value(0));
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(0)).current;
 
   // Typing animation
   useEffect(() => {
@@ -35,23 +39,52 @@ export default function LandingScreen() {
     }).start();
   }, []);
 
-  // Swipe up detection
-  const panResponder = PanResponder.create({
-    onMoveShouldSetPanResponder: (_, gesture) => Math.abs(gesture.dy) > 20,
-    onPanResponderRelease: (_, gesture) => {
-      if (gesture.dy < -100) {
-        router.replace("/(tabs)"); // move to home after swipe
-      }
-    },
-  });
+  // Function to handle complete swipe
+  const handleCompleteSwipe = () => {
+    // Animate the background up
+    Animated.timing(translateY, {
+      toValue: -height,
+      duration: 800,
+      useNativeDriver: true,
+    }).start(() => {
+      // Then pop in the index page
+      router.replace("/(tabs)");
+    });
+  };
+
+  // Pan responder for live swipe
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gesture) => Math.abs(gesture.dy) > 10,
+      onPanResponderMove: (_, gesture) => {
+        if (gesture.dy < 0) {
+          translateY.setValue(gesture.dy); // real-time upward motion
+        }
+      },
+      onPanResponderRelease: (_, gesture) => {
+        if (gesture.dy < -150) {
+          handleCompleteSwipe();
+        } else {
+          // revert if not enough swipe
+          Animated.spring(translateY, {
+            toValue: 0,
+            useNativeDriver: true,
+          }).start();
+        }
+      },
+    })
+  ).current;
 
   return (
-    <View style={{ flex: 1 }} {...panResponder.panHandlers}>
+    <Animated.View
+      style={[styles.container, { transform: [{ translateY }] }]}
+      {...panResponder.panHandlers}
+    >
       <ImageBackground
         source={{
           uri: "https://images.unsplash.com/photo-1524499982521-1ffd58dd89ea",
         }}
-        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        style={styles.image}
         resizeMode="cover"
       >
         <Animated.View
@@ -61,30 +94,39 @@ export default function LandingScreen() {
           ]}
         />
 
-        <Text
-          style={{
-            color: "white",
-            fontSize: 24,
-            fontWeight: "bold",
-            textAlign: "center",
-            paddingHorizontal: 20,
-          }}
-        >
-          {displayedText}
-        </Text>
+        <Text style={styles.title}>{displayedText}</Text>
 
-        <Text
-          style={{
-            position: "absolute",
-            bottom: 40,
-            color: "white",
-            fontSize: 14,
-            opacity: 0.8,
-          }}
-        >
-          ↑ Swipe up to continue
-        </Text>
+        <TouchableOpacity onPress={handleCompleteSwipe}>
+          <Text style={styles.swipeText}>↑ Swipe up to continue</Text>
+        </TouchableOpacity>
       </ImageBackground>
-    </View>
+    </Animated.View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  image: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  title: {
+    color: "orange",
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
+    paddingHorizontal: 20,
+    opacity: 0.9,
+  },
+  swipeText: {
+    position: "absolute",
+    top: 300,
+    right: -70,
+    color: "white",
+    fontSize: 14,
+    opacity: 0.9,
+  },
+});

@@ -1,13 +1,13 @@
 // app/_layout.tsx or app/_layout.js (based on your project structure)
 
-import React from 'react';
-import { Tabs } from 'expo-router';
-import { Platform, Image, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { Colors } from '@/constants/Colors';
 import { HapticTab } from '@/components/HapticTab';
 import TabBarBackground from '@/components/ui/TabBarBackground';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { Ionicons } from '@expo/vector-icons';
+import { Tabs } from 'expo-router';
+import React from 'react';
+import { Image, Platform, Text } from 'react-native';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -67,6 +67,16 @@ export default function TabLayout() {
           title: 'Events',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="calendar" size={size ?? 28} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="library"
+        options={{
+          title: "Library",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="library-outline" size={size ?? 28} color={color} />
           ),
         }}
       />
