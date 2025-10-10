@@ -43,15 +43,7 @@ export default function TabLayout() {
         }),
       })}
     >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size ?? 28} color={color} />
-          ),
-        }}
-      />
+      
       <Tabs.Screen
         name="social"
         options={{
@@ -72,11 +64,31 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Home',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home" size={size ?? 28} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
         name="library"
         options={{
           title: "Library",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="library-outline" size={size ?? 28} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="transactions"
+        options={{
+          title: "Transactions",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="cash-outline" size={size ?? 28} color={color} />
           ),
         }}
       />
