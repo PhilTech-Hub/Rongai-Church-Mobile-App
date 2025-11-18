@@ -1,18 +1,18 @@
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
-    Animated,
-    Dimensions,
-    FlatList,
-    Modal,
-    Platform,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Animated,
+  Dimensions,
+  FlatList,
+  Modal,
+  Platform,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 interface Transaction {
@@ -99,8 +99,8 @@ export default function TransactionsScreen() {
     setDisplayedData([...displayedData, ...nextBatch]);
   };
 
-  // Apply filters and sorting
-  const applyFilters = () => {
+  // Apply filters and sorting with useCallback
+  const applyFilters = useCallback(() => {
     let result = [...transactionsData];
 
     if (filterText) {
@@ -137,7 +137,7 @@ export default function TransactionsScreen() {
 
     setFilteredData(result);
     setDisplayedData(result.slice(0, PAGE_SIZE));
-  };
+  }, [filterText, startDate, endDate, sortBy]);
 
   const handleDateChange = (
     event: any,
@@ -145,16 +145,24 @@ export default function TransactionsScreen() {
     type: "start" | "end"
   ) => {
     if (Platform.OS === "android") {
-      type === "start" ? setShowStartPicker(false) : setShowEndPicker(false);
+      if (type === "start") {
+        setShowStartPicker(false);
+      } else {
+        setShowEndPicker(false);
+      }
     }
     if (selectedDate) {
-      type === "start" ? setStartDate(selectedDate) : setEndDate(selectedDate);
+      if (type === "start") {
+        setStartDate(selectedDate);
+      } else {
+        setEndDate(selectedDate);
+      }
     }
   };
 
   useEffect(() => {
     applyFilters();
-  }, [filterText, startDate, endDate, sortBy]);
+  }, [applyFilters]);
 
   // Insights
   useEffect(() => {
@@ -173,7 +181,7 @@ export default function TransactionsScreen() {
       )[0] || "No receiver";
 
     setInsights([
-      `You’ve made ${sent.length} payments this week.`,
+      `You've made ${sent.length} payments this week.`,
       `Total sent: Ksh ${totalSent.toLocaleString()}`,
       `Total received: Ksh ${totalReceived.toLocaleString()}`,
       `Top receiver: ${mostFrequentReceiver}`,
@@ -259,7 +267,7 @@ export default function TransactionsScreen() {
                 styles.sortButton,
                 sortBy === option && styles.sortButtonActive,
               ]}
-              onPress={() => setSortBy(option as any)}
+              onPress={() => setSortBy(option as "date" | "amount" | "receiver")}
             >
               <Text
                 style={[
