@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { PaymentMethod, PaymentOption } from "../lib/paymentConfig";
+import { PAYMENT_METHODS, PaymentMethod, PaymentOption } from "../lib/paymentConfig";
 import PaymentFormModal from "./PaymentFormModal";
 import PaymentMethodModal from "./PaymentMethodModal";
 
@@ -23,7 +23,7 @@ export default function PaymentOptionsModal({ visible, onClose }: PaymentOptions
   const [showPaymentMethod, setShowPaymentMethod] = useState(false);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [selectedOption, setSelectedOption] = useState<PaymentOption>("Tithe");
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>("paybill");
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>(PAYMENT_METHODS.SEND_MONEY);
 
   const handleOptionSelect = (option: PaymentOption) => {
     setSelectedOption(option);
@@ -39,7 +39,7 @@ export default function PaymentOptionsModal({ visible, onClose }: PaymentOptions
   const handlePaymentFormClose = () => {
     setShowPaymentForm(false);
     setSelectedOption("Tithe");
-    setSelectedMethod("paybill");
+    setSelectedMethod(PAYMENT_METHODS.SEND_MONEY);
   };
 
   const handlePaymentMethodClose = () => {
