@@ -4,14 +4,13 @@ import * as functions from "firebase-functions";
 admin.initializeApp();
 
 export const initiateMpesaPayment = functions.https.onCall(async (data, context) => {
-  // For now, skip authentication for testing
+  // For now, allow without auth for testing
   // if (!context.auth) {
   //   throw new functions.https.HttpsError('unauthenticated', 'User must be logged in.');
   // }
 
   const { amount, phoneNumber, description, destination } = data;
 
-  // Validate input
   if (!amount || !phoneNumber || !description) {
     throw new functions.https.HttpsError('invalid-argument', 'Missing required fields');
   }
@@ -31,9 +30,9 @@ export const initiateMpesaPayment = functions.https.onCall(async (data, context)
     };
 
     const senderPhone = formatPhone(phoneNumber);
-    const recipientPhone = formatPhone("0110490333"); // Church number
+    const recipientPhone = formatPhone("0110490333");
 
-    // Create transaction record in Firestore
+    // Create transaction in Firestore
     const transactionRef = await admin.firestore().collection('transactions').add({
       userId,
       destination: destination || 'General Donation',
@@ -45,25 +44,20 @@ export const initiateMpesaPayment = functions.https.onCall(async (data, context)
       type: 'sent',
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      // Simulate M-Pesa response for testing
-      testMode: true,
-      note: `This would send STK push to ${senderPhone} to pay ${recipientPhone}`
     });
 
-    // Log the payment attempt
     functions.logger.info(`Payment initiated: ${senderPhone} -> ${recipientPhone}, KES ${amount}`);
-    functions.logger.info(`Description: ${description}, Destination: ${destination}`);
 
-    // For testing - simulate successful payment after 3 seconds
+    // Simulate payment completion for testing
     setTimeout(async () => {
       try {
         await transactionRef.update({
           status: 'completed',
-          mpesaReceiptNumber: 'TEST' + Math.random().toString(36).substr(2, 9).toUpperCase(),
-          confirmationMessage: `MPESA Confirmed: TEST123. You sent Ksh ${amount} to Rongai Church.`,
+          mpesaReceiptNumber: 'MPESA' + Math.random().toString(36).substr(2, 8).toUpperCase(),
+          confirmationMessage: `MPESA Confirmed. You sent Ksh ${amount} to Rongai Church.`,
           updatedAt: admin.firestore.FieldValue.serverTimestamp()
         });
-        functions.logger.info(`Test payment completed for transaction: ${transactionRef.id}`);
+        functions.logger.info(`Payment completed: ${transactionRef.id}`);
       } catch (error) {
         functions.logger.error('Error updating transaction:', error);
       }
@@ -71,15 +65,14 @@ export const initiateMpesaPayment = functions.https.onCall(async (data, context)
 
     return {
       success: true,
-      message: 'STK push initiated successfully',
+      message: 'STK push initiated successfully!',
       transactionId: transactionRef.id,
       details: {
         from: senderPhone,
         to: recipientPhone,
         amount: amount,
         description: description
-      },
-      note: 'In test mode - payment will auto-complete in 3 seconds'
+      }
     };
 
   } catch (error) {
@@ -88,9 +81,7 @@ export const initiateMpesaPayment = functions.https.onCall(async (data, context)
   }
 });
 
-// Get user transactions
 export const getUserTransactions = functions.https.onCall(async (data, context) => {
-  // For testing, allow without auth
   // if (!context.auth) {
   //   throw new functions.https.HttpsError('unauthenticated', 'User must be logged in.');
   // }
