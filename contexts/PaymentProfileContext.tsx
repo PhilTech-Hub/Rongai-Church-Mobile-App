@@ -88,27 +88,39 @@ export function PaymentProfileProvider({ children }: { children: React.ReactNode
   }, [paymentProfile, verifyMpesaNumber]); // Add both dependencies
 
   // Load user payment profile
-  const loadUserPaymentProfile = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const storedProfile = await loadFromStorage();
-      if (storedProfile) {
-        setPaymentProfile(storedProfile);
-      } else {
-        const newProfile: UserPaymentProfile = {
-          userId: "user_123",
-          mpesaNumbers: [],
-          defaultPaymentMethod: 'mpesa'
-        };
-        setPaymentProfile(newProfile);
-        await saveToStorage(newProfile);
-      }
-    } catch (error) {
-      console.error('Failed to load payment profile:', error);
-    } finally {
-      setIsLoading(false);
+  // In the loadUserPaymentProfile function, update the initial profile:
+const loadUserPaymentProfile = useCallback(async () => {
+  try {
+    setIsLoading(true);
+    const storedProfile = await loadFromStorage();
+    if (storedProfile) {
+      setPaymentProfile(storedProfile);
+    } else {
+      // Create profile with your number pre-added and verified
+      const newProfile: UserPaymentProfile = {
+        userId: "user_123", // This will come from Firebase Auth later
+        mpesaNumbers: [
+          {
+            id: "1",
+            phoneNumber: "254741103341", // Your number in international format
+            isVerified: true,
+            isDefault: true,
+            verifiedAt: new Date().toISOString(),
+            createdAt: new Date().toISOString()
+          }
+        ],
+        bankAccounts: [],
+        defaultPaymentMethod: 'mpesa'
+      };
+      setPaymentProfile(newProfile);
+      await saveToStorage(newProfile);
     }
-  }, []);
+  } catch (error) {
+    console.error('Failed to load payment profile:', error);
+  } finally {
+    setIsLoading(false);
+  }
+}, []);
 
   // Load profile on component mount
   useEffect(() => {

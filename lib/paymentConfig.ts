@@ -5,7 +5,6 @@ export const PAYMENT_METHODS = {
 
 export type PaymentMethod = typeof PAYMENT_METHODS[keyof typeof PAYMENT_METHODS];
 
-// Add the missing PaymentMethodConfig interface
 export interface PaymentMethodConfig {
   name: string;
   description: string;
@@ -41,49 +40,49 @@ export const PAYMENT_CONFIG: {
       methods: [PAYMENT_METHODS.SEND_MONEY],
       defaultMethod: PAYMENT_METHODS.SEND_MONEY,
       accounts: {
-        send_money: { phoneNumber: "+254110490333" }
+        send_money: { phoneNumber: "0110490333" } // Church number
       }
     },
     "Offering": {
       methods: [PAYMENT_METHODS.SEND_MONEY],
       defaultMethod: PAYMENT_METHODS.SEND_MONEY,
       accounts: {
-        send_money: { phoneNumber: "+254110490333" }
+        send_money: { phoneNumber: "0110490333" }
       }
     },
     "Youth Membership": {
       methods: [PAYMENT_METHODS.SEND_MONEY],
       defaultMethod: PAYMENT_METHODS.SEND_MONEY,
       accounts: {
-        send_money: { phoneNumber: "+254110490333" }
+        send_money: { phoneNumber: "0110490333" }
       }
     },
     "Church Membership Registration": {
       methods: [PAYMENT_METHODS.SEND_MONEY],
       defaultMethod: PAYMENT_METHODS.SEND_MONEY,
       accounts: {
-        send_money: { phoneNumber: "+254110490333" }
+        send_money: { phoneNumber: "0110490333" }
       }
     },
     "Church Emergency Fund": {
       methods: [PAYMENT_METHODS.SEND_MONEY],
       defaultMethod: PAYMENT_METHODS.SEND_MONEY,
       accounts: {
-        send_money: { phoneNumber: "+254110490333" }
+        send_money: { phoneNumber: "0110490333" }
       }
     },
     "Youth Monthly Contributions": {
       methods: [PAYMENT_METHODS.SEND_MONEY],
       defaultMethod: PAYMENT_METHODS.SEND_MONEY,
       accounts: {
-        send_money: { phoneNumber: "+254110490333" }
+        send_money: { phoneNumber: "0110490333" }
       }
     },
     "Youth Emergency Fund": {
       methods: [PAYMENT_METHODS.SEND_MONEY],
       defaultMethod: PAYMENT_METHODS.SEND_MONEY,
       accounts: {
-        send_money: { phoneNumber: "+254110490333" }
+        send_money: { phoneNumber: "0110490333" }
       }
     }
   },

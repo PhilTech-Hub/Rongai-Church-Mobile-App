@@ -31,44 +31,53 @@ export default function PaymentFormModal({
   const accountDetails = paymentOption?.accounts[selectedMethod as keyof PaymentAccountDetails];
 
   const handlePayment = async () => {
-    // Convert to number first, then check
-    const amountNumber = Number(amount);
-    
-    if (!amount || isNaN(amountNumber) || amountNumber <= 0) {
-      Alert.alert("Error", "Please enter a valid amount");
-      return;
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+        Alert.alert("Error", "Please enter a valid amount");
+        return;
     }
 
     if (!description.trim()) {
-      Alert.alert("Error", "Please enter a description");
-      return;
+        Alert.alert("Error", "Please enter a description");
+        return;
+    }
+
+    if (!selectedMpesaNumber) {
+        Alert.alert("Error", "Please select an M-Pesa number");
+        return;
     }
 
     setIsProcessing(true);
     try {
-      const userId = await getCurrentUserId();
-      
-      const paymentData = {
+        const userId = "test_user"; // For testing - will replace with Firebase Auth later
+        
+        const paymentData = {
         destination: selectedOption,
         method: selectedMethod,
-        amount: amountNumber, // Use the converted number
+        amount: Number(amount),
         description: description.trim(),
         userId,
-        accountDetails,
-        additionalInfo
-      };
+        accountDetails: {
+            phoneNumber: "0110490333" // Church number
+        },
+        senderPhoneNumber: selectedMpesaNumber
+        };
 
-      await makePayment(paymentData);
-      
-      Alert.alert("Success", "Payment initiated successfully!");
-      resetForm();
-      onClose();
+        const response = await makePayment(paymentData);
+        
+        Alert.alert(
+        "Payment Initiated", 
+        `Payment of KES ${amount} to ${selectedOption} has been initiated!\n\nFrom: ${selectedMpesaNumber}\nTo: 0110490333 (Church)\n\nYou can check transactions tab for status.`,
+        [{ text: "OK" }]
+        );
+
+        resetForm();
+        onClose();
     } catch (error: any) {
-      Alert.alert("Payment Failed", error.response?.data?.message || "Payment failed. Please try again.");
+        Alert.alert("Payment Failed", error.message || "Failed to initiate payment. Please try again.");
     } finally {
-      setIsProcessing(false);
+        setIsProcessing(false);
     }
-  };
+    };
 
   const resetForm = () => {
     setAmount("");
